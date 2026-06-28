@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaFintech | Modern Banking</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        /* Login Page */
+        #login-view {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top right, #1e1b4b, var(--bg));
+        }
+        .login-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+        }
+        .login-header { text-align: center; margin-bottom: 2rem; }
+        .login-header h1 { color: var(--primary); margin-bottom: 0.5rem; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            outline: none;
+        }
+        .form-input:focus { border-color: var(--primary); }
+
+        /* App Layout (Dashboard, Transfer, Transactions) */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 3rem;
+            padding-left: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-links { list-style: none; flex: 1; }
+        .nav-item { margin-bottom: 0.5rem; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+        .nav-link span { margin-left: 12px; }
+        .user-profile {
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .header h2 { font-size: 1.8rem; }
+        .date-badge {
+            background: var(--card-bg);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        .balance-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        .balance-label { opacity: 0.9; font-size: 0.9rem; }
+        .balance-amount { font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0; }
+        
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.2); }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-item {
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        .stat-value { font-size: 1.2rem; font-weight: bold; }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Table Styles */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        th { color: var(--text-muted); font-weight: 600; font-size: 0.9rem; }
+        .status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status.completed { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status.pending { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        
+        /* Transfer Form */
+        .transfer-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .transfer-summary {
+            background: var(--bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            border: 1px dashed var(--border);
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        .toast.show { transform: translateY(0); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Login View -->
+    <div id="login-view">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>NovaFintech</h1>
+                <p style="color: var(--text-muted)">Secure Banking Portal</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-input" placeholder="user@novafintech.com" value="user@novafintech.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-input" placeholder="••••••••" value="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%">Sign In</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+                Demo: Click "Sign In" to proceed
+            </p>
+        </div>
+    </div>
+
+    <!-- Main App View (Hidden by default) -->
+    <div id="app-view" class="hidden">
+        <div class="app-container">
+            <!-- Sidebar -->
+            <nav class="sidebar">
+                <div class="logo">
+                    <span>⚡</span> NovaFintech
+                </div>
+                <ul class="nav-links">
+                    <li class="nav-item">
+                        <a class="nav-link active" onclick="navigate('dashboard')">
+                            <span>📊</span> <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="navigate('transfer')">
+                            <span>💸</span> <span>Transfer</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="navigate('transactions')">
+                            <span>📜</span> <span>Transactions</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="user-profile" onclick="logout()">
+                    <div class="avatar">U</div>
+                    <div>
+                        <div style="font-weight: bold;">User Name</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Log Out</div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <main class="main-content">
+                
+                <!-- Dashboard Section -->
+                <div id="dashboard-view">
+                    <div class="header">
+                        <h2>Dashboard</h2>
+                        <div class="date-badge" id="current-date"></div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <!-- Balance Card -->
+                        <div class="card balance-card">
+                            <div class="balance-label">Total Balance</div>
+                            <div class="balance-amount" id="total-balance">$12,450.00</div>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">Account: **** 4829</div>
+                            
+                            <div class="quick-actions">
+                                <button class="action-btn" onclick="navigate('transfer')">
+                                    <span>Send</span>
+                                </button>
+                                <button class="action-btn">
+                                    <span>Receive</span>
+                                </button>
+                                <button class="action-btn">
+                                    <span>Top Up</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stats Card -->
+                        <div class="card">
+                            <h3 style="margin-bottom: 1rem;">Monthly Stats</h3>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <div class="stat-value" style="color: var(--success)">+$4,200</div>
+                                    <div class="stat-label">Income</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" style="color: var(--danger)">-$2,100</div>
+                                    <div class="stat-label">Spent</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">$350</div>
+                                    <div class="stat-label">Saved</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Transactions Preview -->
+                        <div class="card" style="grid-column: span 2;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h3>Recent Transactions</h3>
+                                <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="navigate('transactions')">View All</button>
+                            </div>
+                            <div class="table-container">
+                                <table id="recent-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Recipient/Merchant</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th style="text-align: right;">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transfer Section -->
+                <div id="transfer-view" class="hidden">
+                    <div class="header">
+                        <h2>Transfer Money</h2>
+                        <div class="date-badge" id="transfer-date"></div>
+                    </div>
+
+                    <div class="card transfer-container">
+                        <form id="transfer-form">
+                            <div class="form-group">
+                                <label>Recipient Name</label>
+                                <input type="text" class="form-input" id="transfer-name" placeholder="e.g. John Doe" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Account Number / IBAN</label>
+                                <input type="text" class="form-input" id="transfer-account" placeholder="
